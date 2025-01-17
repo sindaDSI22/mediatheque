@@ -2,86 +2,71 @@
 import datetime
 from flask import jsonify, render_template, request
 
+from abonnee.models import Abonne
+
 from . import app
 from flask.views import MethodView
 from bson import ObjectId
-from run import mongo
+from run import db
 
 @app.route('/insert_abonnee', methods=['POST'])
 def ajouter_abonne():
     data = request.json
+
+    # Vérifier que les champs obligatoires sont fournis
     if not all(k in data for k in ["nom", "prenom", "adresse"]):
         return jsonify({"message": "Les champs 'nom', 'prenom' et 'adresse' sont obligatoires"}), 400
 
-    nouvel_abonne = {
-        "nom": data["nom"],
-        "prenom": data["prenom"],
-        "adresse": data["adresse"],
-        "date_inscription": datetime.datetime.now().strftime("%Y/%m/%d"),
-        "emprunts_en_cours": [],
-        "historique_emprunts": []
-    }
+    nouvel_abonne = Abonne(
+        nom=data["nom"],
+        prenom=data["prenom"],
+        adresse=data["adresse"],
+        date_inscription=datetime.datetime.utcnow()
+    )
 
-    result = mongo.db.abonnes.insert_one(nouvel_abonne)
+    nouvel_abonne.save()
 
-    return jsonify({"message": "Abonné ajouté avec succès", "id": str(result.inserted_id)}), 201
+    return jsonify({"message": "Abonné ajouté avec succès", "id": str(nouvel_abonne.id)}), 201
 
 @app.route('/get_abonnes', methods=['GET'])
 def get_abonnes():
-    abonnes = mongo.db.abonnes.find()
-    abonnes = mongo.db.abonnes.find()
-    abonnes_list = []
-    for abonne in abonnes:
-        abonnes_list.append({
-            "_id": str(abonne["_id"]),
-            "nom": abonne["nom"],
-            "prenom": abonne["prenom"],
-            "adresse": abonne["adresse"],
-            "date_inscription": abonne["date_inscription"]
+    abonnés = Abonne.objects()
+
+    abonnés_list = []
+    for abonne in abonnés:
+        abonnés_list.append({
+            "_id": str(abonne.id),
+            "nom": abonne.nom,
+            "prenom": abonne.prenom,
+            "adresse": abonne.adresse,
+            "date_inscription": abonne.date_inscription.isoformat()
         })
-    return render_template('index.html', abonnes=abonnes_list)
-    return jsonify(abonnes_list), 200
+
+    return jsonify(abonnés_list),200
 
 @app.route('/update_abonnes/<id_abonne>', methods=['PUT'])
 def modifier_abonne(id_abonne):
     data = request.json
 
-    if not ObjectId.is_valid(id_abonne):
-        return jsonify({"message": "ID invalide"}), 400
+    abonne = Abonne.objects(id=id_abonne).first()
 
-    abonne_id = ObjectId(id_abonne)
-
-    abonne_existant = mongo.db.abonnes.find_one({"_id": abonne_id})
-    if not abonne_existant:
+    if not abonne:
         return jsonify({"message": "Abonné non trouvé"}), 404
 
-    update_fields = {}
-    if "nom" in data:
-        update_fields["nom"] = data["nom"]
-    if "prenom" in data:
-        update_fields["prenom"] = data["prenom"]
-    if "adresse" in data:
-        update_fields["adresse"] = data["adresse"]
+    abonne.update(
+        set__nom=data["nom"],
+        set__prenom=data["prenom"],
+        set__adresse=data["adresse"]
+    )
 
-    if update_fields:
-        result = mongo.db.abonnes.update_one(
-            {"_id": abonne_id},
-            {"$set": update_fields}
-        )
-
-        if result.matched_count == 0:
-            return jsonify({"message": "Aucune modification effectuée"}), 400
-
-        return jsonify({"message": "Abonné modifié avec succès"}), 200
-    else:
-        return jsonify({"message": "Aucune donnée à mettre à jour"}), 400
+    return jsonify({"message": "Abonné modifié avec succès"}), 200
 
 @app.route('/delete_abonnee/<id_abonne>', methods=['DELETE'])
 def supprimer_abonne(id_abonne):
-    abonne_id = ObjectId(id_abonne)
-    result = mongo.db.abonnes.delete_one({"_id": abonne_id})
-
-    if result.deleted_count == 0:
+    abonne = Abonne.objects(id=id_abonne).first()
+    if not abonne:
         return jsonify({"message": "Abonné non trouvé"}), 404
+
+    abonne.delete()
 
     return jsonify({"message": "Abonné supprimé avec succès"}), 200

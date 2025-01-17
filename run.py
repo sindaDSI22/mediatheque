@@ -10,13 +10,14 @@ from flask_smorest import Api
 from abonnee import app as abonnee_app
 from emprunt import app as emprunt_app
 from document import app as document_app
+from flask_mongoengine import MongoEngine
 
 app = Flask(__name__,template_folder='static')
 app.config["API_TITLE"] = "MEDIATHEQUE"
 app.config["API_VERSION"] = "v1.0.5"
 app.config["OPENAPI_VERSION"] = "3.0.1"
 app.config["MONGO_URI"] = "mongodb://localhost:27017/mediatheque"
-mongo = PyMongo(app)
+db = MongoEngine(app)
 
 CORS(app)
 
