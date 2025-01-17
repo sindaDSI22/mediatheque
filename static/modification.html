@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier Abonné</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Modifier Abonné</h1>
+
+        <!-- Formulaire de modification -->
+        <form action="/abonnee/update_abonnes/{{ abonne.id }}" method="POST">
+            <input type="text" name="nom" placeholder="Nom" value="{{ abonne.nom }}" required>
+            <input type="text" name="prenom" placeholder="Prénom" value="{{ abonne.prenom }}" required>
+            <input type="text" name="adresse" placeholder="Adresse" value="{{ abonne.adresse }}" required>
+            <button type="submit">Modifier</button>
+        </form>
+
+        <a href="/abonnee/get_abonnes">Retour à la liste des abonnés</a>
+    </div>
+</body>
+</html>

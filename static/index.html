@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Médiathèque - Gestion des Abonnés</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <div class="container">
@@ -35,14 +35,14 @@
             <tbody>
                 {% for abonne in abonnes %}
                 <tr>
-                    <td>{{ abonne._id }}</td>
+                    <td>{{ abonne.id }}</td>
                     <td>{{ abonne.nom }}</td>
                     <td>{{ abonne.prenom }}</td>
                     <td>{{ abonne.adresse }}</td>
                     <td>{{ abonne.date_inscription }}</td>
                     <td>
-                        <a href="/abonnee/abonnes/{{ abonne._id }}/edit">Modifier</a> |
-                        <a href="/abonnee/abonnes/{{ abonne._id }}/delete">Supprimer</a>
+                        <a href="/abonnee/edit_abonne/{{ abonne.id }}">Modifier</a> |
+                        <a href="/abonnee/delete_abonnee/{{ abonne.id }}">Supprimer</a>
                     </td>
                 </tr>
                 {% endfor %}

@@ -13,7 +13,6 @@ from run import db
 def ajouter_abonne():
     data = request.json
 
-    # Vérifier que les champs obligatoires sont fournis
     if not all(k in data for k in ["nom", "prenom", "adresse"]):
         return jsonify({"message": "Les champs 'nom', 'prenom' et 'adresse' sont obligatoires"}), 400
 
@@ -41,10 +40,9 @@ def get_abonnes():
             "adresse": abonne.adresse,
             "date_inscription": abonne.date_inscription.isoformat()
         })
+    return render_template('index.html', abonnes=abonnés)
 
-    return jsonify(abonnés_list),200
-
-@app.route('/update_abonnes/<id_abonne>', methods=['PUT'])
+@app.route('/update_abonnes/<id_abonne>', methods=['POST'])
 def modifier_abonne(id_abonne):
     data = request.json
 
@@ -70,3 +68,13 @@ def supprimer_abonne(id_abonne):
     abonne.delete()
 
     return jsonify({"message": "Abonné supprimé avec succès"}), 200
+
+
+@app.route('/edit_abonne/<id_abonne>', methods=['GET'])
+def edit_abonne(id_abonne):
+    abonne = Abonne.objects(id=id_abonne).first()
+    if not abonne:
+        return jsonify({"message": "Abonné non trouvé"}), 404
+
+    # Passer les informations de l'abonné au template HTML
+    return render_template('modification.html', abonne=abonne)
