@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Médiathèque - Gestion des Abonnés</title>
+    <title>Médiathèque - Gestion des Abonnés & Documents</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Gestion des Abonnés de la Médiathèque</h1>
+        <h1>Gestion de la Médiathèque</h1>
 
         <!-- Formulaire d'ajout d'abonné -->
         <h2>Ajouter un Abonné</h2>
@@ -41,8 +41,56 @@
                     <td>{{ abonne.adresse }}</td>
                     <td>{{ abonne.date_inscription }}</td>
                     <td>
-                        <button><a href="/abonnee/edit_abonne/{{ abonne.id }}">Modifier</a></button> |
+                        <button><a href="/abonnee/edit_abonne/{{ abonne.id }}">Modifier</a></button>
                         <button onclick="deleteAbonne('{{ abonne.id }}')">Supprimer</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Formulaire d'ajout de document -->
+        <h2>Ajouter un Document</h2>
+        <form id="documentForm">
+            <input type="text" id="titre" name="titre" placeholder="Titre" required>
+            <label for="type">Type</label>
+                <select id="type" name="type" required>
+                    <option value="Livre">Livre</option>
+                    <option value="Magazine">Magazine</option>
+                    <option value="DVD">DVD</option>
+                    <option value="CD">CD</option>
+                    <option value="E-book">E-book</option>
+                </select>
+            <input type="text" id="auteur" name="auteur" placeholder="Auteur" required>
+            <button type="submit">Ajouter</button>
+        </form>
+
+        <!-- Liste des Documents -->
+        <h2>Liste des Documents</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Titre</th>
+                    <th>Type</th>
+                    <th>Auteur</th>
+                    <th>Date de publication</th>
+                    <th>Disponible</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for document in documents %}
+                <tr>
+                    <td>{{ document.id }}</td>
+                    <td>{{ document.titre }}</td>
+                    <td>{{ document.type }}</td>
+                    <td>{{ document.auteur }}</td>
+                    <td>{{ document.date_publication }}</td>
+                    <td>{{ "Oui" if document.disponible else "Non" }}</td>
+                    <td>
+                        <button><a href="/document/edit_document/{{ document.id }}">Modifier</a></button>
+                        <button onclick="deleteDocument('{{ document.id }}')">Supprimer</button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -51,8 +99,9 @@
     </div>
 
     <script>
+        // Ajout d'un abonné
         document.getElementById("abonneeForm").addEventListener("submit", function(event) {
-            event.preventDefault(); // Empêche le rechargement de la page
+            event.preventDefault();
 
             let data = {
                 nom: document.getElementById("nom").value,
@@ -68,25 +117,55 @@
                 body: JSON.stringify(data)
             })
             .then(response => response.json())
-            .then(data => {
-                location.reload()
-            })
+            .then(data => location.reload())
             .catch(error => console.error("Erreur :", error));
         });
 
+        // Suppression d'un abonné
         function deleteAbonne(id) {
-        if (confirm("Voulez-vous vraiment supprimer cet abonné ?")) {
-            fetch(`/abonnee/delete_abonnee/${id}`, {
-                method: "DELETE"
+            if (confirm("Voulez-vous vraiment supprimer cet abonné ?")) {
+                fetch(`/abonnee/delete_abonnee/${id}`, {
+                    method: "DELETE"
+                })
+                .then(response => response.json())
+                .then(data => location.reload())
+                .catch(error => console.error("Erreur :", error));
+            }
+        }
+
+        // Ajout d'un document
+        document.getElementById("documentForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            let data = {
+                titre: document.getElementById("titre").value,
+                type: document.getElementById("type").value,
+                auteur: document.getElementById("auteur").value
+            };
+
+            fetch("/document/insert_document", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
             })
             .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                location.reload(); // Recharger la page pour mettre à jour la liste
-            })
+            .then(data => location.reload())
             .catch(error => console.error("Erreur :", error));
+        });
+
+        // Suppression d'un document
+        function deleteDocument(id) {
+            if (confirm("Voulez-vous vraiment supprimer ce document ?")) {
+                fetch(`/document/delete_document/${id}`, {
+                    method: "DELETE"
+                })
+                .then(response => response.json())
+                .then(data => location.reload())
+                .catch(error => console.error("Erreur :", error));
+            }
         }
-    }
-        </script>
+    </script>
 </body>
 </html>
