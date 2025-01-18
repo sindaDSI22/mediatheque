@@ -12,10 +12,10 @@
 
         <!-- Formulaire d'ajout d'abonné -->
         <h2>Ajouter un Abonné</h2>
-        <form action="/abonnee/insert_abonnee" method="POST">
-            <input type="text" name="nom" placeholder="Nom" required>
-            <input type="text" name="prenom" placeholder="Prénom" required>
-            <input type="text" name="adresse" placeholder="Adresse" required>
+        <form id="abonneeForm">
+            <input type="text" id="nom" name="nom" placeholder="Nom" required>
+            <input type="text" id="prenom" name="prenom" placeholder="Prénom" required>
+            <input type="text" id="adresse" name="adresse" placeholder="Adresse" required>
             <button type="submit">Ajouter</button>
         </form>
 
@@ -41,13 +41,52 @@
                     <td>{{ abonne.adresse }}</td>
                     <td>{{ abonne.date_inscription }}</td>
                     <td>
-                        <a href="/abonnee/edit_abonne/{{ abonne.id }}">Modifier</a> |
-                        <a href="/abonnee/delete_abonnee/{{ abonne.id }}">Supprimer</a>
+                        <button><a href="/abonnee/edit_abonne/{{ abonne.id }}">Modifier</a></button> |
+                        <button onclick="deleteAbonne('{{ abonne.id }}')">Supprimer</button>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+
+    <script>
+        document.getElementById("abonneeForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Empêche le rechargement de la page
+
+            let data = {
+                nom: document.getElementById("nom").value,
+                prenom: document.getElementById("prenom").value,
+                adresse: document.getElementById("adresse").value
+            };
+
+            fetch("/abonnee/insert_abonnee", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                location.reload()
+            })
+            .catch(error => console.error("Erreur :", error));
+        });
+
+        function deleteAbonne(id) {
+        if (confirm("Voulez-vous vraiment supprimer cet abonné ?")) {
+            fetch(`/abonnee/delete_abonnee/${id}`, {
+                method: "DELETE"
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                location.reload(); // Recharger la page pour mettre à jour la liste
+            })
+            .catch(error => console.error("Erreur :", error));
+        }
+    }
+        </script>
 </body>
 </html>

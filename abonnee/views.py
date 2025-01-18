@@ -42,7 +42,7 @@ def get_abonnes():
         })
     return render_template('index.html', abonnes=abonnés)
 
-@app.route('/update_abonnes/<id_abonne>', methods=['POST'])
+@app.route('/update_abonnes/<id_abonne>', methods=['PUT'])
 def modifier_abonne(id_abonne):
     data = request.json
 
