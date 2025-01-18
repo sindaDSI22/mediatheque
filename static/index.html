@@ -96,6 +96,58 @@
                 {% endfor %}
             </tbody>
         </table>
+
+        <!-- Formulaire d'ajout d'emprunt -->
+        <h2>Ajouter un Emprunt</h2>
+        <form id="empruntForm">
+            <label for="abonne_id">Abonné</label>
+            <select id="abonne_id" name="abonne_id" required>
+                {% for abonne in abonnes %}
+                <option value="{{ abonne.id }}">{{ abonne.nom }} {{ abonne.prenom }}</option>
+                {% endfor %}
+            </select>
+            <label for="document_id">Document</label>
+            <select id="document_id" name="document_id" required>
+                {% for document in documents %}
+                <option value="{{ document.id }}">{{ document.titre }} - {{ document.auteur }}</option>
+                {% endfor %}
+            </select>
+            <label for="date_retour_prevue">Date de retour prévue</label>
+            <input type="date" id="date_retour_prevue" name="date_retour_prevue" required>
+            <button type="submit">Ajouter Emprunt</button>
+        </form>
+
+        <!-- Liste des Emprunts -->
+        <h2>Liste des Emprunts</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Abonné</th>
+                    <th>Document</th>
+                    <th>Date Emprunt</th>
+                    <th>Date Retour Prévue</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for emprunt in emprunts %}
+                <tr>
+                    <td>{{ emprunt.id }}</td>
+                    <td>{{ emprunt.abonne.nom }} {{ emprunt.abonne.prenom }}</td>
+                    <td>{{ emprunt.document.titre }}</td>
+                    <td>{{ emprunt.date_emprunt }}</td>
+                    <td>{{ emprunt.date_retour_prevue }}</td>
+                    <td>{{ emprunt.statut }}</td>
+                    <td>
+                        <button><a href="/emprunt/edit_emprunt/{{ emprunt.id }}">Modifier</a></button>
+                        <button onclick="deleteEmprunt('{{ emprunt.id }}')">Supprimer</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 
     <script>
@@ -159,6 +211,40 @@
         function deleteDocument(id) {
             if (confirm("Voulez-vous vraiment supprimer ce document ?")) {
                 fetch(`/document/delete_document/${id}`, {
+                    method: "DELETE"
+                })
+                .then(response => response.json())
+                .then(data => location.reload())
+                .catch(error => console.error("Erreur :", error));
+            }
+        }
+
+        // Ajout d'un emprunt
+        document.getElementById("empruntForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            let data = {
+                abonne_id: document.getElementById("abonne_id").value,
+                document_id: document.getElementById("document_id").value,
+                date_retour_prevue: document.getElementById("date_retour_prevue").value
+            };
+
+            fetch("/emprunt/insert_emprunt", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => location.reload())
+            .catch(error => console.error("Erreur :", error));
+        });
+
+        // Suppression d'un emprunt
+        function deleteEmprunt(id) {
+            if (confirm("Voulez-vous vraiment supprimer cet emprunt ?")) {
+                fetch(`/emprunt/delete_emprunt/${id}`, {
                     method: "DELETE"
                 })
                 .then(response => response.json())

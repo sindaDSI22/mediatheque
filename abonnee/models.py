@@ -1,7 +1,7 @@
 import datetime
 from run import db
 
-class Abonne(db.Document):
+class Abonnes(db.Document):
     nom = db.StringField(required=True)
     prenom = db.StringField(required=True)
     adresse = db.StringField(required=True)
@@ -15,3 +15,10 @@ class Documents(db.Document):
     auteur = db.StringField(required=True)
     date_publication = db.DateTimeField(default=datetime.datetime.utcnow)
     disponible = db.BooleanField(default=True)
+
+class Emprunts(db.Document):
+    abonne = db.ReferenceField(Abonnes, required=True)
+    document = db.ReferenceField(Documents, required=True)
+    date_emprunt = db.DateTimeField(default=datetime.datetime.utcnow)
+    date_retour_prevue = db.DateTimeField()
+    statut = db.StringField(default='en cours')

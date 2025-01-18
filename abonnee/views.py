@@ -2,7 +2,7 @@
 import datetime
 from flask import jsonify, render_template, request
 
-from abonnee.models import Abonne
+from abonnee.models import Abonnes
 
 from . import app
 from flask.views import MethodView
@@ -16,7 +16,7 @@ def ajouter_abonne():
     if not all(k in data for k in ["nom", "prenom", "adresse"]):
         return jsonify({"message": "Les champs 'nom', 'prenom' et 'adresse' sont obligatoires"}), 400
 
-    nouvel_abonne = Abonne(
+    nouvel_abonne = Abonnes(
         nom=data["nom"],
         prenom=data["prenom"],
         adresse=data["adresse"],
@@ -29,7 +29,7 @@ def ajouter_abonne():
 
 @app.route('/get_abonnes', methods=['GET'])
 def get_abonnes():
-    abonnés = Abonne.objects()
+    abonnés = Abonnes.objects()
 
     abonnés_list = []
     for abonne in abonnés:
@@ -46,7 +46,7 @@ def get_abonnes():
 def modifier_abonne(id_abonne):
     data = request.json
 
-    abonne = Abonne.objects(id=id_abonne).first()
+    abonne = Abonnes.objects(id=id_abonne).first()
 
     if not abonne:
         return jsonify({"message": "Abonné non trouvé"}), 404
@@ -61,7 +61,7 @@ def modifier_abonne(id_abonne):
 
 @app.route('/delete_abonnee/<id_abonne>', methods=['DELETE'])
 def supprimer_abonne(id_abonne):
-    abonne = Abonne.objects(id=id_abonne).first()
+    abonne = Abonnes.objects(id=id_abonne).first()
     if not abonne:
         return jsonify({"message": "Abonné non trouvé"}), 404
 
@@ -72,7 +72,7 @@ def supprimer_abonne(id_abonne):
 
 @app.route('/edit_abonne/<id_abonne>', methods=['GET'])
 def edit_abonne(id_abonne):
-    abonne = Abonne.objects(id=id_abonne).first()
+    abonne = Abonnes.objects(id=id_abonne).first()
     if not abonne:
         return jsonify({"message": "Abonné non trouvé"}), 404
 
