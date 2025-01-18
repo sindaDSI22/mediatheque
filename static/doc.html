@@ -10,61 +10,88 @@
 
 <body>
     <div class="container">
-        <nav style="display: flex; flex-direction: row;justify-content: space-around;align-items: center; margin-bottom: 10;">
-            <a href="/abonnee/get_abonnes">Abonnes</a>
-            <a href="/document/get_documents">Documents</a>
-            <a href="/emprunt/get_emprunts">Emprunts</a>
+        <nav style="display: flex; justify-content: center; gap: 30px; padding: 20px; background-color: #f5f5f5; border-bottom: 3px solid #ccc;">
+            <a href="/abonnee/get_abonnes" style="text-decoration: none; padding: 15px 30px; background-color: #A7C7E7; color: #2C3E50; border-radius: 10px; font-size: 20px; font-weight: bold; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);">
+                Abonnés
+            </a>
+            <a href="/document/get_documents" style="text-decoration: none; padding: 15px 30px; background-color: #B5EAD7; color: #2C3E50; border-radius: 10px; font-size: 20px; font-weight: bold; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);">
+                Documents
+            </a>
+            <a href="/emprunt/get_emprunts" style="text-decoration: none; padding: 15px 30px; background-color: #FFDAC1; color: #2C3E50; border-radius: 10px; font-size: 20px; font-weight: bold; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);">
+                Emprunts
+            </a>
         </nav>
 
-        <h1>Gestion de la Médiathèque</h1>
+        <div class="d-flex justify-content-center align-items-center text-center my-4 p-4 border rounded shadow-sm" style="background-color: #f8f9fa; min-height: 200px;">
+            <div>
+                <h1 class="text-primary mb-3" style="font-size: 2.5rem; font-weight: bold;">
+                    📖 Gestion de la Médiathèque
+                </h1>
+                <p class="lead" style="font-size: 1.25rem; color: #6c757d;">
+                    Gérez les abonnés, documents et emprunts de manière efficace.
+                </p>
+            </div>
+        </div>
 
         <!-- Formulaire d'ajout de document -->
-        <h2>Ajouter un Document</h2>
-        <form id="documentForm">
-            <input type="text" id="titre" name="titre" placeholder="Titre" required>
-            <label for="type">Type</label>
-            <select id="type" name="type" required>
-                <option value="Livre">Livre</option>
-                <option value="Magazine">Magazine</option>
-                <option value="DVD">DVD</option>
-                <option value="CD">CD</option>
-                <option value="E-book">E-book</option>
-            </select>
-            <input type="text" id="auteur" name="auteur" placeholder="Auteur" required>
-            <button type="submit">Ajouter</button>
-        </form>
+        <div class="card shadow-sm p-4 my-4">
+            <h2 class="mb-3">➕ Ajouter un Document</h2>
+            <form id="documentForm" class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" id="titre" name="titre" class="form-control" placeholder="Titre" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="type" class="form-label">Type</label>
+                    <select id="type" name="type" class="form-select" required>
+                        <option value="Livre">Livre</option>
+                        <option value="Magazine">Magazine</option>
+                        <option value="E-book">E-book</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="auteur" name="auteur" class="form-control" placeholder="Auteur" required>
+                </div>
+                <div class="col-12 text-center">
+                    <button type="submit" class="btn btn-success">Ajouter</button>
+                </div>
+            </form>
+        </div>
+
 
         <!-- Liste des Documents -->
-        <h2>Liste des Documents</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Titre</th>
-                    <th>Type</th>
-                    <th>Auteur</th>
-                    <th>Date de publication</th>
-                    <th>Disponible</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for document in documents %}
-                <tr>
-                    <td>{{ document.id }}</td>
-                    <td>{{ document.titre }}</td>
-                    <td>{{ document.type }}</td>
-                    <td>{{ document.auteur }}</td>
-                    <td>{{ document.date_publication }}</td>
-                    <td>{{ "Oui" if document.disponible else "Non" }}</td>
-                    <td>
-                        <button><a href="/document/edit_document/{{ document.id }}">Modifier</a></button>
-                        <button onclick="deleteDocument('{{ document.id }}')">Supprimer</button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="card shadow-sm p-4">
+            <h2 class="mb-3">📚 Liste des Documents</h2>
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Titre</th>
+                        <th>Type</th>
+                        <th>Auteur</th>
+                        <th>Date de publication</th>
+                        <th>Disponible</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for document in documents %}
+                    <tr>
+                        <td>{{ document.id }}</td>
+                        <td>{{ document.titre }}</td>
+                        <td>{{ document.type }}</td>
+                        <td>{{ document.auteur }}</td>
+                        <td>{{ document.date_publication }}</td>
+                        <td>{{ "Oui" if document.disponible else "Non" }}</td>
+                        <td>
+                            <a href="/document/edit_document/{{ document.id }}" class="btn btn-success">Modifier</a>
+                            <button class="btn btn-danger" onclick="deleteDocument('{{ document.id }}')">Supprimer</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
     </div>
 
     <script>

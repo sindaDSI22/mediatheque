@@ -66,3 +66,48 @@ button {
     border: none;
     cursor: pointer;
 }
+
+nav a:hover {
+    opacity: 0.8;
+    transform: scale(1.05);
+    transition: all 0.3s ease-in-out;
+}
+
+.btn {
+    display: inline-block;
+    padding: 8px 15px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+btn-success {
+    background-color: #28a745 !important;
+    /* Vert */
+    color: white !important;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-danger {
+    background-color: #dc3545 !important;
+    /* Rouge */
+    color: white !important;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-success:hover {
+    background-color: #218838 !important;
+}
+
+.btn-danger:hover {
+    background-color: #c82333 !important;
+}

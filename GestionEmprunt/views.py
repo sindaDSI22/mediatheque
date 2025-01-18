@@ -8,9 +8,9 @@ from flask.views import MethodView
 def insert_emprunt():
     data = request.json
 
-    # if not all(k in data for k in ["abonne_id", "document_id", "date_retour_prevue"]):
-    #     return jsonify({"message": "Les champs 'abonne_id', 'document_id' et 'date_retour_prevue' sont obligatoires"}), 400
-    from abonnee.models import Abonnes, Documents, Emprunts
+    if not all(k in data for k in ["abonne_id", "document_id", "date_retour_prevue"]):
+        return jsonify({"message": "Les champs 'abonne_id', 'document_id' et 'date_retour_prevue' sont obligatoires"}), 400
+    from GestionAbonnee.models import Abonnes, Documents, Emprunts
     abonne = Abonnes.objects(id=data["abonne_id"]).first()
     document = Documents.objects(id=data["document_id"]).first()
 
@@ -23,15 +23,13 @@ def insert_emprunt():
         date_retour_prevue=data["date_retour_prevue"]
     )
 
-    #document.update(set__disponible=False)
-
     nouvel_emprunt.save()
 
     return jsonify({"message": "Emprunt ajouté avec succès", "id": str(nouvel_emprunt.id)}), 201
 
 @app.route('/get_emprunts', methods=['GET'])
 def get_emprunts():
-    from abonnee.models import Abonnes, Documents, Emprunts
+    from GestionAbonnee.models import Abonnes, Documents, Emprunts
     emprunts = Emprunts.objects()
     abonnes = Abonnes.objects()
     documents = Documents.objects()
@@ -51,7 +49,7 @@ def get_emprunts():
 
 @app.route('/get_emprunt/<id_emprunt>', methods=['GET'])
 def get_emprunt(id_emprunt):
-    from abonnee.models import Abonnes, Documents, Emprunts
+    from GestionAbonnee.models import Abonnes, Documents, Emprunts
     emprunt = Emprunts.objects(id=id_emprunt).first()
 
     if not emprunt:
@@ -70,7 +68,7 @@ def get_emprunt(id_emprunt):
 
 @app.route('/delete_emprunt/<id_emprunt>', methods=['DELETE'])
 def delete_emprunt(id_emprunt):
-    from abonnee.models import Abonnes, Documents, Emprunts
+    from GestionAbonnee.models import Abonnes, Documents, Emprunts
     emprunt = Emprunts.objects(id=id_emprunt).first()
     if not emprunt:
         return jsonify({"message": "Emprunt non trouvé"}), 404
@@ -81,7 +79,7 @@ def delete_emprunt(id_emprunt):
 
 @app.route('/get_emprunts_abonne/<id_abonne>', methods=['GET'])
 def get_emprunts_abonne(id_abonne):
-    from abonnee.models import Abonnes, Documents, Emprunts
+    from GestionAbonnee.models import Abonnes, Documents, Emprunts
     abonne = Abonnes.objects(id=id_abonne).first()
     if not abonne:
         return jsonify({"message": "Abonné non trouvé"}), 404

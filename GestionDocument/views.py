@@ -11,7 +11,7 @@ def insert_document():
 
     if not all(k in data for k in ["titre", "type", "auteur"]):
         return jsonify({"message": "Les champs 'titre', 'type' et 'auteur' sont obligatoires"}), 400
-    from abonnee.models import Documents
+    from GestionAbonnee.models import Documents
     nouveau_document = Documents(
         titre=data["titre"],
         type=data["type"],
@@ -26,7 +26,7 @@ def insert_document():
 
 @app.route('/get_documents', methods=['GET'])
 def get_documents():
-    from abonnee.models import Documents
+    from GestionAbonnee.models import Documents
     documents = Documents.objects()
 
     documents_list = []
@@ -44,7 +44,7 @@ def get_documents():
 @app.route('/update_document/<id_document>', methods=['PUT'])
 def modifier_document(id_document):
     data = request.json
-    from abonnee.models import Documents
+    from GestionAbonnee.models import Documents
     document = Documents.objects(id=id_document).first()
 
     if not document:
@@ -61,7 +61,7 @@ def modifier_document(id_document):
 
 @app.route('/delete_document/<id_document>', methods=['DELETE'])
 def supprimer_document(id_document):
-    from abonnee.models import Documents
+    from GestionAbonnee.models import Documents
     document = Documents.objects(id=id_document).first()
     if not document:
         return jsonify({"message": "Document non trouvé"}), 404
@@ -72,7 +72,7 @@ def supprimer_document(id_document):
 
 @app.route('/edit_document/<id_document>', methods=['GET'])
 def edit_document(id_document):
-    from abonnee.models import Documents
+    from GestionAbonnee.models import Documents
     document = Documents.objects(id=id_document).first()
     if not document:
         return jsonify({"message": "Document non trouvé"}), 404

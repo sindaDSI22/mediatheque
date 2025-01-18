@@ -2,12 +2,11 @@
 import datetime
 from flask import jsonify, render_template, request
 
-from abonnee.models import Abonnes
+from GestionAbonnee.models import Abonnes
 
 from . import app
 from flask.views import MethodView
 from bson import ObjectId
-from run import db
 
 @app.route('/insert_abonnee', methods=['POST'])
 def ajouter_abonne():

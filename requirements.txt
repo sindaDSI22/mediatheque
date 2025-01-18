@@ -13,3 +13,4 @@ mysql-connector-python==8.0.27
 flask-pymongo
 flask-mongoengine
 Jinja2==3.0.2
+flask_testing

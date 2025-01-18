@@ -7,9 +7,9 @@ import os
 
 
 from flask_smorest import Api
-from abonnee import app as abonnee_app
-from emprunt import app as emprunt_app
-from document import app as document_app
+from GestionAbonnee import app as abonnee_app
+from GestionEmprunt import app as emprunt_app
+from GestionDocument import app as document_app
 from flask_mongoengine import MongoEngine
 
 app = Flask(__name__,template_folder='static')
@@ -28,7 +28,7 @@ api.register_blueprint(document_app,url_prefix="/document")
 
 @app.route('/developer')
 def get_doc():
-    swaggerURL = "./static/swaggerrcpro.yaml"
+    swaggerURL = "./static/swagger.yaml"
     with open(os.path.realpath("static/index.html"), 'r') as file:
         data = file.read().replace('\n', '').replace("swaggerUrl",swaggerURL)
     return data

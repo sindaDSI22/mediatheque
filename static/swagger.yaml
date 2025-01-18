@@ -1,16 +1,22 @@
-openapi: 3.0.1
+openapi: 3.0.0
 info:
-  title: MEDIATHEQUE
-  version: 1.0.5
-  description: API de gestion des abonnés et des emprunts pour une médiathèque.
-servers:
-  - url: "http://localhost:5000"
-    description: Serveur de développement
+  title: API de Gestion de la Médiathèque
+  description: API pour gérer les abonnés, les documents et les emprunts d'une médiathèque
+  version: 1.0.0
+tags:
+  - name: abonnee
+    description: Gestion des abonnés
+  - name: document
+    description: Gestion des documents
+  - name: emprunt
+    description: Gestion des emprunts
 paths:
   /abonnee/insert_abonnee:
     post:
+      tags:
+        - abonnee
       summary: Ajouter un nouvel abonné
-      description: Cette route permet d'ajouter un nouvel abonné dans la médiathèque.
+      description: Crée un nouvel abonné dans le système.
       operationId: ajouterAbonne
       requestBody:
         required: true
@@ -21,13 +27,17 @@ paths:
               properties:
                 nom:
                   type: string
-                  description: Nom de l'abonné
+                  description: Le nom de l'abonné
                 prenom:
                   type: string
-                  description: Prénom de l'abonné
+                  description: Le prénom de l'abonné
                 adresse:
                   type: string
-                  description: Adresse de l'abonné
+                  description: L'adresse de l'abonné
+              required:
+                - nom
+                - prenom
+                - adresse
       responses:
         '201':
           description: Abonné ajouté avec succès
@@ -38,10 +48,12 @@ paths:
                 properties:
                   message:
                     type: string
+                    example: Abonné ajouté avec succès
                   id:
                     type: string
+                    example: 507f1f77bcf86cd799439011
         '400':
-          description: Champs manquants ou invalides
+          description: Les champs 'nom', 'prenom' et 'adresse' sont obligatoires
           content:
             application/json:
               schema:
@@ -49,15 +61,18 @@ paths:
                 properties:
                   message:
                     type: string
+                    example: Les champs 'nom', 'prenom' et 'adresse' sont obligatoires
 
   /abonnee/get_abonnes:
     get:
+      tags:
+        - abonnee
       summary: Récupérer la liste des abonnés
-      description: Cette route permet de récupérer la liste de tous les abonnés.
+      description: Retourne la liste de tous les abonnés.
       operationId: getAbonnes
       responses:
         '200':
-          description: Liste des abonnés récupérée avec succès
+          description: Liste des abonnés
           content:
             application/json:
               schema:
@@ -65,37 +80,427 @@ paths:
                 items:
                   type: object
                   properties:
-                    id:
+                    _id:
                       type: string
+                      description: L'ID de l'abonné
                     nom:
                       type: string
+                      description: Le nom de l'abonné
                     prenom:
                       type: string
+                      description: Le prénom de l'abonné
                     adresse:
                       type: string
+                      description: L'adresse de l'abonné
                     date_inscription:
                       type: string
+                      format: date-time
+                      description: La date d'inscription de l'abonné
 
-components:
-  schemas:
-    Abonne:
-      type: object
-      properties:
-        id:
-          type: string
-        nom:
-          type: string
-        prenom:
-          type: string
-        adresse:
-          type: string
-        date_inscription:
-          type: string
-        emprunts_en_cours:
-          type: array
-          items:
-            type: object
-        historique_emprunts:
-          type: array
-          items:
-            type: object
+  /abonnee/update_abonnes/{id_abonne}:
+    put:
+      tags:
+        - abonnee
+      summary: Modifier un abonné
+      description: Modifie un abonné existant avec les nouvelles informations.
+      operationId: modifierAbonne
+      parameters:
+        - name: id_abonne
+          in: path
+          required: true
+          description: L'ID de l'abonné à modifier
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nom:
+                  type: string
+                prenom:
+                  type: string
+                adresse:
+                  type: string
+              required:
+                - nom
+                - prenom
+                - adresse
+      responses:
+        '200':
+          description: Abonné modifié avec succès
+        '404':
+          description: Abonné non trouvé
+
+  /abonnee/delete_abonnee/{id_abonne}:
+    delete:
+      tags:
+        - abonnee
+      summary: Supprimer un abonné
+      description: Supprime un abonné du système.
+      operationId: supprimerAbonne
+      parameters:
+        - name: id_abonne
+          in: path
+          required: true
+          description: L'ID de l'abonné à supprimer
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Abonné supprimé avec succès
+        '404':
+          description: Abonné non trouvé
+
+  /document/insert_document:
+    post:
+      tags:
+        - document
+      summary: Ajouter un nouveau document
+      description: Crée un nouveau document dans le catalogue.
+      operationId: insertDocument
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                titre:
+                  type: string
+                  description: Le titre du document
+                type:
+                  type: string
+                  description: Le type de document (ex. livre, DVD, etc.)
+                auteur:
+                  type: string
+                  description: L'auteur du document
+              required:
+                - titre
+                - type
+                - auteur
+      responses:
+        '201':
+          description: Document ajouté avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Document ajouté avec succès
+                  id:
+                    type: string
+                    example: 507f1f77bcf86cd799439011
+        '400':
+          description: Les champs 'titre', 'type' et 'auteur' sont obligatoires
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Les champs 'titre', 'type' et 'auteur' sont obligatoires
+
+  /document/get_documents:
+    get:
+      tags:
+        - document
+      summary: Récupérer la liste des documents
+      description: Retourne la liste de tous les documents dans le catalogue.
+      operationId: getDocuments
+      responses:
+        '200':
+          description: Liste des documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      description: L'ID du document
+                    titre:
+                      type: string
+                      description: Le titre du document
+                    type:
+                      type: string
+                      description: Le type de document
+                    auteur:
+                      type: string
+                      description: L'auteur du document
+                    date_publication:
+                      type: string
+                      format: date-time
+                      description: La date de publication du document
+                    disponible:
+                      type: boolean
+                      description: Indique si le document est disponible
+
+  /document/update_document/{id_document}:
+    put:
+      tags:
+        - document
+      summary: Modifier un document
+      description: Modifie un document existant avec les nouvelles informations.
+      operationId: updateDocument
+      parameters:
+        - name: id_document
+          in: path
+          required: true
+          description: L'ID du document à modifier
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                titre:
+                  type: string
+                type:
+                  type: string
+                auteur:
+                  type: string
+                disponible:
+                  type: boolean
+      responses:
+        '200':
+          description: Document modifié avec succès
+        '404':
+          description: Document non trouvé
+
+  /document/delete_document/{id_document}:
+    delete:
+      tags:
+        - document
+      summary: Supprimer un document
+      description: Supprime un document du catalogue.
+      operationId: deleteDocument
+      parameters:
+        - name: id_document
+          in: path
+          required: true
+          description: L'ID du document à supprimer
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Document supprimé avec succès
+        '404':
+          description: Document non trouvé
+  /emprunt/insert_emprunt:
+    post:
+      tags:
+        - emprunt
+      summary: Ajouter un nouvel emprunt
+      description: Crée un nouvel emprunt pour un abonné et un document.
+      operationId: insertEmprunt
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                abonne_id:
+                  type: string
+                  description: L'ID de l'abonné
+                document_id:
+                  type: string
+                  description: L'ID du document emprunté
+                date_retour_prevue:
+                  type: string
+                  format: date-time
+                  description: La date prévue pour le retour du document
+              required:
+                - abonne_id
+                - document_id
+                - date_retour_prevue
+      responses:
+        '201':
+          description: Emprunt ajouté avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Emprunt ajouté avec succès
+                  id:
+                    type: string
+                    example: 507f1f77bcf86cd799439011
+        '404':
+          description: Abonné ou document non trouvé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Abonné ou document non trouvé
+
+  /emprunt/get_emprunts:
+    get:
+      tags:
+        - emprunt
+      summary: Récupérer la liste des emprunts
+      description: Retourne la liste de tous les emprunts effectués.
+      operationId: getEmprunts
+      responses:
+        '200':
+          description: Liste des emprunts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      description: L'ID de l'emprunt
+                    abonne_id:
+                      type: string
+                      description: L'ID de l'abonné
+                    document_id:
+                      type: string
+                      description: L'ID du document emprunté
+                    date_emprunt:
+                      type: string
+                      format: date-time
+                      description: La date d'emprunt
+                    date_retour_prevue:
+                      type: string
+                      format: date-time
+                      description: La date de retour prévue
+                    statut:
+                      type: string
+                      description: Le statut de l'emprunt (par exemple, "en cours", "retourné")
+
+  /emprunt/get_emprunt/{id_emprunt}:
+    get:
+      tags:
+        - emprunt
+      summary: Récupérer un emprunt par son ID
+      description: Retourne les détails d'un emprunt spécifique.
+      operationId: getEmprunt
+      parameters:
+        - name: id_emprunt
+          in: path
+          required: true
+          description: L'ID de l'emprunt à récupérer
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Détails de l'emprunt
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                    description: L'ID de l'emprunt
+                  abonne_id:
+                    type: string
+                    description: L'ID de l'abonné
+                  document_id:
+                    type: string
+                    description: L'ID du document emprunté
+                  date_emprunt:
+                    type: string
+                    format: date-time
+                    description: La date d'emprunt
+                  date_retour_prevue:
+                    type: string
+                    format: date-time
+                    description: La date de retour prévue
+                  statut:
+                    type: string
+                    description: Le statut de l'emprunt
+        '404':
+          description: Emprunt non trouvé
+
+  /emprunt/delete_emprunt/{id_emprunt}:
+    delete:
+      tags:
+        - emprunt
+      summary: Supprimer un emprunt
+      description: Supprime un emprunt du système.
+      operationId: deleteEmprunt
+      parameters:
+        - name: id_emprunt
+          in: path
+          required: true
+          description: L'ID de l'emprunt à supprimer
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Emprunt supprimé avec succès
+        '404':
+          description: Emprunt non trouvé
+
+  /emprunt/get_emprunts_abonne/{id_abonne}:
+    get:
+      tags:
+        - emprunt
+      summary: Récupérer les emprunts d'un abonné
+      description: Retourne la liste des emprunts pour un abonné spécifique.
+      operationId: getEmpruntsAbonne
+      parameters:
+        - name: id_abonne
+          in: path
+          required: true
+          description: L'ID de l'abonné
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Liste des emprunts de l'abonné
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      description: L'ID de l'emprunt
+                    document_id:
+                      type: string
+                      description: L'ID du document emprunté
+                    date_emprunt:
+                      type: string
+                      format: date-time
+                      description: La date d'emprunt
+                    date_retour_prevue:
+                      type: string
+                      format: date-time
+                      description: La date de retour prévue
+                    statut:
+                      type: string
+                      description: Le statut de l'emprunt
+        '404':
+          description: Abonné non trouvé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Abonné non trouvé
