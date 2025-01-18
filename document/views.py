@@ -39,7 +39,7 @@ def get_documents():
             "date_publication": doc.date_publication.isoformat(),
             "disponible": doc.disponible
         })
-    return render_template('index.html', documents=documents)
+    return render_template('doc.html', documents=documents)
 
 @app.route('/update_document/<id_document>', methods=['PUT'])
 def modifier_document(id_document):
@@ -77,4 +77,4 @@ def edit_document(id_document):
     if not document:
         return jsonify({"message": "Document non trouvé"}), 404
 
-    return render_template('modification.html', document=document)
+    return render_template('modification_doc.html', document=document)

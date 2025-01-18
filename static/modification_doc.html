@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier Abonné</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Modifier document</h1>
+
+        <form id="updateForm">
+            <input type="hidden" id="id_abonne" value="{{ document.id }}">
+            <input type="text" id="titre" name="titre" placeholder="titre" value="{{ document.titre }}" required>
+            <select id="type" value="{{ document.type }}" name="type" required>
+                <option value="Livre">Livre</option>
+                <option value="Magazine">Magazine</option>
+                <option value="DVD">DVD</option>
+                <option value="CD">CD</option>
+                <option value="E-book">E-book</option>
+            </select>
+            <input type="text" id="auteur" name="auteur" placeholder="auteur" value="{{ document.auteur }}" required>
+            <button type="submit">Modifier</button>
+        </form>
+
+        <a href="/document/get_documents">Retour à la liste des documents</a>
+    </div>
+
+    <script>
+        document.getElementById("updateForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            let id = document.getElementById("id_abonne").value;
+            let data = {
+                titre: document.getElementById("titre").value,
+                type: document.getElementById("type").value,
+                auteur: document.getElementById("auteur").value
+            };
+
+            fetch(`/document/update_document/${id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                window.location.href = "/document/get_documents";
+            })
+            .catch(error => console.error("Erreur :", error));
+        });
+    </script>
+</body>
+</html>

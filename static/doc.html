@@ -18,82 +18,56 @@
 
         <h1>Gestion de la Médiathèque</h1>
 
-        <!-- Formulaire d'ajout d'abonné -->
-        <h2>Ajouter un Abonné</h2>
-        <form id="abonneeForm">
-            <input type="text" id="nom" name="nom" placeholder="Nom" required>
-            <input type="text" id="prenom" name="prenom" placeholder="Prénom" required>
-            <input type="text" id="adresse" name="adresse" placeholder="Adresse" required>
+        <!-- Formulaire d'ajout de document -->
+        <h2>Ajouter un Document</h2>
+        <form id="documentForm">
+            <input type="text" id="titre" name="titre" placeholder="Titre" required>
+            <label for="type">Type</label>
+            <select id="type" name="type" required>
+                <option value="Livre">Livre</option>
+                <option value="Magazine">Magazine</option>
+                <option value="DVD">DVD</option>
+                <option value="CD">CD</option>
+                <option value="E-book">E-book</option>
+            </select>
+            <input type="text" id="auteur" name="auteur" placeholder="Auteur" required>
             <button type="submit">Ajouter</button>
         </form>
 
-        <!-- Liste des Abonnés -->
-        <h2>Liste des Abonnés</h2>
+        <!-- Liste des Documents -->
+        <h2>Liste des Documents</h2>
         <table>
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Nom</th>
-                    <th>Prénom</th>
-                    <th>Adresse</th>
-                    <th>Date d'inscription</th>
+                    <th>Titre</th>
+                    <th>Type</th>
+                    <th>Auteur</th>
+                    <th>Date de publication</th>
+                    <th>Disponible</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                {% for abonne in abonnes %}
+                {% for document in documents %}
                 <tr>
-                    <td>{{ abonne.id }}</td>
-                    <td>{{ abonne.nom }}</td>
-                    <td>{{ abonne.prenom }}</td>
-                    <td>{{ abonne.adresse }}</td>
-                    <td>{{ abonne.date_inscription }}</td>
+                    <td>{{ document.id }}</td>
+                    <td>{{ document.titre }}</td>
+                    <td>{{ document.type }}</td>
+                    <td>{{ document.auteur }}</td>
+                    <td>{{ document.date_publication }}</td>
+                    <td>{{ "Oui" if document.disponible else "Non" }}</td>
                     <td>
-                        <button><a href="/abonnee/edit_abonne/{{ abonne.id }}">Modifier</a></button>
-                        <button onclick="deleteAbonne('{{ abonne.id }}')">Supprimer</button>
+                        <button><a href="/document/edit_document/{{ document.id }}">Modifier</a></button>
+                        <button onclick="deleteDocument('{{ document.id }}')">Supprimer</button>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-
-
     </div>
 
     <script>
-        // Ajout d'un abonné
-        document.getElementById("abonneeForm").addEventListener("submit", function (event) {
-            event.preventDefault();
-
-            let data = {
-                nom: document.getElementById("nom").value,
-                prenom: document.getElementById("prenom").value,
-                adresse: document.getElementById("adresse").value
-            };
-
-            fetch("/abonnee/insert_abonnee", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data)
-            })
-                .then(response => response.json())
-                .then(data => location.reload())
-                .catch(error => console.error("Erreur :", error));
-        });
-
-        // Suppression d'un abonné
-        function deleteAbonne(id) {
-            if (confirm("Voulez-vous vraiment supprimer cet abonné ?")) {
-                fetch(`/abonnee/delete_abonnee/${id}`, {
-                    method: "DELETE"
-                })
-                    .then(response => response.json())
-                    .then(data => location.reload())
-                    .catch(error => console.error("Erreur :", error));
-            }
-        }
 
         // Ajout d'un document
         document.getElementById("documentForm").addEventListener("submit", function (event) {

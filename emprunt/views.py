@@ -8,8 +8,8 @@ from flask.views import MethodView
 def insert_emprunt():
     data = request.json
 
-    if not all(k in data for k in ["abonne_id", "document_id", "date_retour_prevue"]):
-        return jsonify({"message": "Les champs 'abonne_id', 'document_id' et 'date_retour_prevue' sont obligatoires"}), 400
+    # if not all(k in data for k in ["abonne_id", "document_id", "date_retour_prevue"]):
+    #     return jsonify({"message": "Les champs 'abonne_id', 'document_id' et 'date_retour_prevue' sont obligatoires"}), 400
     from abonnee.models import Abonnes, Documents, Emprunts
     abonne = Abonnes.objects(id=data["abonne_id"]).first()
     document = Documents.objects(id=data["document_id"]).first()
@@ -23,7 +23,7 @@ def insert_emprunt():
         date_retour_prevue=data["date_retour_prevue"]
     )
 
-    document.update(set__disponible=False)
+    #document.update(set__disponible=False)
 
     nouvel_emprunt.save()
 
@@ -33,6 +33,8 @@ def insert_emprunt():
 def get_emprunts():
     from abonnee.models import Abonnes, Documents, Emprunts
     emprunts = Emprunts.objects()
+    abonnes = Abonnes.objects()
+    documents = Documents.objects()
 
     emprunts_list = []
     for emprunt in emprunts:
@@ -45,7 +47,7 @@ def get_emprunts():
             "statut": emprunt.statut
         })
 
-    return jsonify(emprunts_list), 200
+    return render_template('emp.html', emprunts=emprunts,abonnes=abonnes,documents=documents)
 
 @app.route('/get_emprunt/<id_emprunt>', methods=['GET'])
 def get_emprunt(id_emprunt):
