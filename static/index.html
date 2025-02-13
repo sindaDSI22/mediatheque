@@ -5,11 +5,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Médiathèque - Gestion des Abonnés & Documents</title>
+    <style>
+        body {
+            background-image: url('/home/med/mediatheque/static/im.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+    </style>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
     <div class="container">
+        <div class="d-flex justify-content-center align-items-center text-center my-4 p-5 border rounded shadow-sm" style="background-color: #f8f9fa; min-height: 100px; max-width: 800px; margin: 0 auto;">
+            <div>
+                <h1 class="text-primary mb-3" style="font-size: 3rem; font-weight: bold; color: #2C3E50;">
+                    📖 Gestion de la Médiathèque
+                </h1>
+
+            </div>
+        </div>
+
         <nav style="display: flex; justify-content: center; gap: 30px; padding: 20px; background-color: #f5f5f5; border-bottom: 3px solid #ccc;">
             <a href="/abonnee/get_abonnes" style="text-decoration: none; padding: 15px 30px; background-color: #A7C7E7; color: #2C3E50; border-radius: 10px; font-size: 20px; font-weight: bold; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);">
                 Abonnés
@@ -22,40 +39,35 @@
             </a>
         </nav>
 
-
         <!-- Formulaire d'ajout d'abonné -->
         <!-- Titre Principal -->
-        <div class="d-flex justify-content-center align-items-center text-center my-4 p-4 border rounded shadow-sm" style="background-color: #f8f9fa; min-height: 200px;">
-            <div>
-                <h1 class="text-primary mb-3" style="font-size: 2.5rem; font-weight: bold;">
-                    📖 Gestion de la Médiathèque
-                </h1>
-                <p class="lead" style="font-size: 1.25rem; color: #6c757d;">
-                    Gérez les abonnés, documents et emprunts de manière efficace.
-                </p>
+
+        <div class="mb-4" style="display: flex; justify-content: flex-end;">
+            <div style="position: relative; max-width: 400px; width: 100%;">
+                <input type="text" id="searchDocument" placeholder="🔍 Rechercher par titre" class="form-control w-100" style="padding-left: 40px; border-radius: 30px; border: 2px solid #ddd; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: all 0.3s;">
+                <i class="fa fa-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #999;"></i>
             </div>
         </div>
-
-
-
         <!-- Formulaire d'ajout d'abonné -->
         <div class="card shadow-sm p-4 my-4">
-            <h2 class="mb-3">➕ Ajouter un Abonné</h2>
-            <form id="abonneeForm" class="row g-3">
-                <div class="col-md-4">
+            <h2 class="mb-3 text-center">➕ Ajouter un Abonné</h2>
+            <form id="abonneeForm" class="row g-3 d-flex justify-content-center">
+                <div class="col-md-3">
                     <input type="text" id="nom" name="nom" class="form-control" placeholder="Nom" required>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <input type="text" id="prenom" name="prenom" class="form-control" placeholder="Prénom" required>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <input type="text" id="adresse" name="adresse" class="form-control" placeholder="Adresse" required>
                 </div>
-                <div class="col-12 text-center">
+                <div class="col-12 text-center mt-3">
                     <button type="submit" class="btn btn-success">Ajouter</button>
                 </div>
             </form>
         </div>
+
+
 
         <div class="card shadow-sm p-4">
             <h2 class="mb-3">📋 Liste des Abonnés</h2>
@@ -70,7 +82,7 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="abonneList">
                     {% for abonne in abonnes %}
                     <tr>
                         <td>{{ abonne.id }}</td>
@@ -79,9 +91,8 @@
                         <td>{{ abonne.adresse }}</td>
                         <td>{{ abonne.date_inscription }}</td>
                         <td>
-                                <a href="/abonnee/edit_abonne/{{ abonne.id }}" class="btn btn-success">Modifier</a>
-                                <button class="btn btn-danger" onclick="deleteAbonne('{{ abonne.id }}')">Supprimer</button>
-
+                            <a href="/abonnee/edit_abonne/{{ abonne.id }}" class="btn btn-success">Modifier</a>
+                            <button class="btn btn-danger" onclick="deleteAbonne('{{ abonne.id }}')">Supprimer</button>
                         </td>
                     </tr>
                     {% endfor %}
@@ -89,10 +100,24 @@
             </table>
         </div>
 
-
     </div>
 
     <script>
+        // Fonction pour effectuer la recherche par nom
+        document.getElementById('searchDocument').addEventListener('input', function() {
+            const searchValue = this.value.toLowerCase();
+            const documentsRows = document.querySelectorAll('#documentList tr');
+
+            documentsRows.forEach(row => {
+                const titre = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                if (titre.includes(searchValue)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
         // Ajout d'un abonné
         document.getElementById("abonneeForm").addEventListener("submit", function (event) {
             event.preventDefault();
@@ -119,40 +144,6 @@
         function deleteAbonne(id) {
             if (confirm("Voulez-vous vraiment supprimer cet abonné ?")) {
                 fetch(`/abonnee/delete_abonnee/${id}`, {
-                    method: "DELETE"
-                })
-                    .then(response => response.json())
-                    .then(data => location.reload())
-                    .catch(error => console.error("Erreur :", error));
-            }
-        }
-
-        // Ajout d'un document
-        document.getElementById("documentForm").addEventListener("submit", function (event) {
-            event.preventDefault();
-
-            let data = {
-                titre: document.getElementById("titre").value,
-                type: document.getElementById("type").value,
-                auteur: document.getElementById("auteur").value
-            };
-
-            fetch("/document/insert_document", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data)
-            })
-                .then(response => response.json())
-                .then(data => location.reload())
-                .catch(error => console.error("Erreur :", error));
-        });
-
-        // Suppression d'un document
-        function deleteDocument(id) {
-            if (confirm("Voulez-vous vraiment supprimer ce document ?")) {
-                fetch(`/document/delete_document/${id}`, {
                     method: "DELETE"
                 })
                     .then(response => response.json())

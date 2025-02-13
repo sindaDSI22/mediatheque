@@ -28,7 +28,21 @@ def ajouter_abonne():
 
 @app.route('/get_abonnes', methods=['GET'])
 def get_abonnes():
-    abonnés = Abonnes.objects()
+    query = {}
+
+    nom = request.args.get('nom')
+    prenom = request.args.get('prenom')
+    date_inscription = request.args.get('date_inscription')
+
+    if nom:
+        query['nom'] = nom
+    if prenom:
+        query['prenom'] = prenom
+    if date_inscription:
+        query['date_inscription'] = date_inscription
+
+    abonnés = Abonnes.objects(**query)
+    # abonnés = Abonnes.objects()
 
     abonnés_list = []
     for abonne in abonnés:
@@ -63,6 +77,11 @@ def supprimer_abonne(id_abonne):
     abonne = Abonnes.objects(id=id_abonne).first()
     if not abonne:
         return jsonify({"message": "Abonné non trouvé"}), 404
+
+    from GestionAbonnee.models import Emprunts
+    emprunts_abonne = Emprunts.objects(abonne=abonne)
+    for emprunt in emprunts_abonne:
+        emprunt.delete()
 
     abonne.delete()
 

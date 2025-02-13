@@ -23,6 +23,8 @@ def insert_emprunt():
         date_retour_prevue=data["date_retour_prevue"]
     )
 
+    document.update(set__disponible=False)
+
     nouvel_emprunt.save()
 
     return jsonify({"message": "Emprunt ajouté avec succès", "id": str(nouvel_emprunt.id)}), 201
@@ -72,6 +74,9 @@ def delete_emprunt(id_emprunt):
     emprunt = Emprunts.objects(id=id_emprunt).first()
     if not emprunt:
         return jsonify({"message": "Emprunt non trouvé"}), 404
+
+    document = emprunt.document
+    document.update(set__disponible=True)
 
     emprunt.delete()
 

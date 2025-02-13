@@ -27,19 +27,33 @@ def insert_document():
 @app.route('/get_documents', methods=['GET'])
 def get_documents():
     from GestionAbonnee.models import Documents
-    documents = Documents.objects()
+    titre = request.args.get('titre', '')
+    auteur = request.args.get('auteur', '')
+    type_document = request.args.get('type', '')
+
+    query = {}
+    if titre:
+        query['titre__icontains'] = titre
+    if auteur:
+        query['auteur__icontains'] = auteur
+    if type_document:
+        query['type__icontains'] = type_document
+
+    documents = Documents.objects(**query)
 
     documents_list = []
     for doc in documents:
         documents_list.append({
-            "_id": str(doc.id),
+            "id": str(doc.id),
             "titre": doc.titre,
             "type": doc.type,
             "auteur": doc.auteur,
             "date_publication": doc.date_publication.isoformat(),
             "disponible": doc.disponible
         })
-    return render_template('doc.html', documents=documents)
+
+    return render_template('doc.html', documents=documents_list)
+
 
 @app.route('/update_document/<id_document>', methods=['PUT'])
 def modifier_document(id_document):
@@ -65,7 +79,10 @@ def supprimer_document(id_document):
     document = Documents.objects(id=id_document).first()
     if not document:
         return jsonify({"message": "Document non trouvé"}), 404
-
+    from GestionAbonnee.models import Emprunts
+    emprunts_abonne = Emprunts.objects(document=document)
+    for emprunt in emprunts_abonne:
+        emprunt.delete()
     document.delete()
 
     return jsonify({"message": "Document supprimé avec succès"}), 200
