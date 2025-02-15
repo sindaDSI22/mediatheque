@@ -35,9 +35,12 @@ def get_emprunts():
     emprunts = Emprunts.objects()
     abonnes = Abonnes.objects()
     documents = Documents.objects()
+    now = datetime.datetime.now()
 
     emprunts_list = []
     for emprunt in emprunts:
+        if emprunt.date_retour_prevue < now and emprunt.statut != "en retard":
+            emprunt.update(set__statut="en retard")
         emprunts_list.append({
             "_id": str(emprunt.id),
             "abonne_id": str(emprunt.abonne.id),

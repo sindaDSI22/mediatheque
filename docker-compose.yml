@@ -1,0 +1,149 @@
+version: '3'
+services:
+
+  #_|_ _|_    ######### CONFIG SERVER #########   _|_ _|_ #
+  configsvr-1:
+    image: mongo:6.0.1
+    container_name: mongo-config-server-1
+    command: mongod --port 27017 --configsvr --replSet config-rs
+    volumes:
+      - ./scripts:/scripts
+    ports:
+      - 27119:27017
+    networks:
+      - mongo_network
+    healthcheck:
+      test: [ "CMD", "mongo", "--eval", "db.adminCommand('ping')" ]
+      interval: 30s
+      retries: 5
+      timeout: 10s
+
+  configsvr-2:
+    image: mongo:6.0.1
+    container_name: mongo-config-server-2
+    command: mongod --port 27017 --configsvr --replSet config-rs
+    volumes:
+      - ./scripts:/scripts
+    ports:
+      - 27120:27017
+    networks:
+      - mongo_network
+
+  configsvr-3:
+    image: mongo:6.0.1
+    container_name: mongo-config-server-3
+    command: mongod --port 27017 --configsvr --replSet config-rs
+    volumes:
+      - ./scripts:/scripts
+    ports:
+      - 27121:27017
+    networks:
+      - mongo_network
+
+  #_|_ _|_    ######### SHARD1 NODE1 #########    _|_ _|_ #
+  shard1-1:
+    image: mongo:6.0.1
+    container_name: shard-1-1
+    command: mongod --port 27017 --shardsvr --replSet shard-rs-1
+    volumes:
+      - ./scripts:/scripts
+    ports:
+      - 27122:27017
+    links:
+      - shard1-2
+      - shard1-3
+    networks:
+      - mongo_network
+    depends_on:
+      - configsvr-1
+      - configsvr-2
+      - configsvr-3
+
+  #_|_ _|_    ######### SHARD1 NODE2 #########    _|_ _|_ #
+  shard1-2:
+    image: mongo:6.0.1
+    container_name: shard-1-2
+    command: mongod --port 27017 --shardsvr --replSet shard-rs-1
+    volumes:
+      - ./scripts:/scripts
+    ports:
+      - 27123:27017
+    networks:
+      - mongo_network
+
+  #_|_ _|_    ######### SHARD1 NODE3 #########     _|_ _|_ #
+  shard1-3:
+    image: mongo:6.0.1
+    container_name: shard-1-3
+    command: mongod --port 27017 --shardsvr --replSet shard-rs-1
+    volumes:
+      - ./scripts:/scripts
+    ports:
+      - 27124:27017
+    networks:
+      - mongo_network
+
+  #_|_ _|_    ######### SHARD2 NODE1 #########     _|_ _|_ #
+  shard2-1:
+    image: mongo:6.0.1
+    container_name: shard-2-1
+    command: mongod --port 27017 --shardsvr --replSet shard-rs-2
+    volumes:
+      - ./scripts:/scripts
+    ports:
+      - 27125:27017
+    links:
+      - shard2-2
+      - shard2-3
+    networks:
+      - mongo_network
+    depends_on:
+      - configsvr-1
+      - configsvr-2
+      - configsvr-3
+
+  #_|_ _|_    ######### SHARD2 NODE2 #########     _|_ _|_ #
+  shard2-2:
+    image: mongo:6.0.1
+    container_name: shard-2-2
+    command: mongod --port 27017 --shardsvr --replSet shard-rs-2
+    volumes:
+      - ./scripts:/scripts
+    ports:
+      - 27126:27017
+    networks:
+      - mongo_network
+
+  #_|_ _|_    ######### SHARD2 NODE3 #########     _|_ _|_ #
+  shard2-3:
+    image: mongo:6.0.1
+    container_name: shard-2-3
+    command: mongod --port 27017 --shardsvr --replSet shard-rs-2
+    volumes:
+      - ./scripts:/scripts
+    ports:
+      - 27127:27017
+    networks:
+      - mongo_network
+
+  #_|_ _|_    ######### ROUTER SERVER #########   _|_ _|_ #
+  router:
+    image: mongo:6.0.1
+    container_name: router
+    command: mongos --port 27017 --configdb config-rs/configsvr-1:27017,configsvr-2:27017,configsvr-3:27017 --bind_ip_all
+    ports:
+      - 27017:27017
+    volumes:
+      - ./scripts:/scripts
+    networks:
+      - mongo_network
+    depends_on:
+      - configsvr-1
+      - configsvr-2
+      - configsvr-3
+      - shard1-1
+      - shard2-1
+
+networks:
+  mongo_network:
+    driver: bridge
